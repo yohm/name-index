@@ -1,4 +1,4 @@
-class NameIndex
+module NameIndex
 
   KATAKANA_CHARS = %w(
     アイウエオ
@@ -11,26 +11,20 @@ class NameIndex
     ヤユヨ
     ワヲ
     ン
-  )
+  ).freeze
 
-  private
-  def self.get_index_char(name)
-    found_line = KATAKANA_CHARS.find do |kana_line|
-      kana_line.include?(name[0])
-    end
-    found_line[0]
+  extend self
+
+  def create_index(names)
+    names.sort.group_by { |name|
+      get_index_char(name)
+    }.to_a
   end
 
-  public
-  def self.create_index(names)
-    index = Hash.new { Array.new }
-    names.each do |name|
-      key = get_index_char(name)
-      index[key] += [name]
-    end
-    index = index.sort_by do |key,val|
-      KATAKANA_CHARS.map {|s| s[0]}.index(key)
-    end
-    index.map {|key,val| [key, val.sort] }
+  private
+  def get_index_char(name)
+    KATAKANA_CHARS.find { |kana_line|
+      kana_line.include?(name.chr)
+    }.chr
   end
 end
